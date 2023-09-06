@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
-import { defaultData } from "../tableData/defaultData";
+//import { defaultData } from "../tableData/defaultData";
 import TableCell from "../components/TableCell";
 import TableEditCell from "../components/TableEditCell";
+import axios from 'axios'
 
 function Table() {
     const columnHelper = createColumnHelper();
     const columns = [
-        columnHelper.accessor("lineItemId", {
+        columnHelper.accessor("_id", {
             header: "ID",
             meta: {
                 type: "number",
@@ -32,8 +33,15 @@ function Table() {
             cell: TableEditCell,
         }),
     ];
-    const [data, setData] = useState(() => [...defaultData]);
-    const [originalData, setOriginalData] = useState(() => [...defaultData]);
+
+    const [data, setData] = useState(() => []);
+    const [originalData, setOriginalData] = useState(() => []);
+    useEffect(()=> async () =>{
+        
+        const {data} = await axios.get('/api/tabledata/')
+        setData(data)
+        
+    }, [])
     const [editedRows, setEditedRows] = useState({});
     const table = useReactTable({
         data,
