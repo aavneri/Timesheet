@@ -38,7 +38,7 @@ function Table() {
     const [originalData, setOriginalData] = useState(() => []);
     useEffect(()=> async () =>{
         
-        const {data} = await axios.get('/api/tabledata/')
+        const { data } = await axios.get("/api/timesheets/1");
         setData(data)
         
     }, [])

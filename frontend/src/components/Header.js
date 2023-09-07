@@ -7,14 +7,14 @@ function Header() {
             <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect>
                 <Container>
                     <LinkContainer to="/">
-                        <Navbar.Brand>ProShop</Navbar.Brand>
+                        <Navbar.Brand>TimeSheets</Navbar.Brand>
                     </LinkContainer>
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="mr-auto">
-                            <LinkContainer to="/timesheet">
+                            <LinkContainer to="/timesheets/1">
                                 <Nav.Link>
-                                    <i className="fas fa-clock-rotate-left px-1"></i>TimeSheets
+                                    <i className="fas fa-clock-rotate-left px-1"></i>Your TimeSheets
                                 </Nav.Link>
                             </LinkContainer>
                             <LinkContainer to="/login">

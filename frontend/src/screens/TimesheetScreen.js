@@ -9,7 +9,7 @@ function TimesheetScreen() {
             <Col sm={12} md={6} lg={4} xl={3}>
                 <SheetDescription title="Timesheet Description:" />
             </Col>
-            <Col >
+            <Col>
                 <Table />
             </Col>
         </Row>
