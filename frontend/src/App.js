@@ -4,6 +4,9 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import HomeScreen from "./screens/HomeScreen";
 import TimesheetsScreen from './screens/TimesheetsScreen'
+import LoginScreen from './screens/LoginScreen'
+import RegisterScreen from "./screens/RegisterScreen";
+import ProfileScreen from "./screens/ProfileScreen";
 function App() {
     return (
         <Router>
@@ -12,7 +15,10 @@ function App() {
                 <Container>
                     <Routes>
                         <Route path="/" element={<HomeScreen />} exact />
-                        <Route path="/timesheets/:id" element={<TimesheetsScreen />} exact />
+                        <Route path="/timesheets/:id" element={<TimesheetsScreen />} />
+                        <Route path="/login/" element={<LoginScreen />} />
+                        <Route path="/register/" element={<RegisterScreen />} />
+                        <Route path="/profile" element={<ProfileScreen />} />
                     </Routes>
                 </Container>
             </main>

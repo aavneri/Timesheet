@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
-import { Row, Col, ListGroup, Image, Form, Button, Card, ListGroupItem } from "react-bootstrap";
+import { Link, useParams } from "react-router-dom";
+import { Row, Col, ListGroup } from "react-bootstrap";
 import axios from "axios";
 import Message from "../components/Message";
 import Loader from "../components/Loader";
