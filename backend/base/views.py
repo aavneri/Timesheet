@@ -61,13 +61,22 @@ def updateUserProfile(request):
     return Response(serializer.data)
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def timesheets(request, userId):
     timesheets = TimeSheet.objects.filter(userId = userId)
     serializer = TimeSheetSerializer(timesheets, many=True)
     return Response(serializer.data)
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def getTimesheet(request, pk):
+    timesheets = TimeSheet.objects.get(timesheetId = pk)
+    serializer = TimeSheetSerializer(timesheets, many=False)
+    return Response(serializer.data)
+
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getLineItem(request, pk):
     lineItem = next((li for li in defaultData if li['_id'] == int(pk)), None)
     return Response(lineItem)

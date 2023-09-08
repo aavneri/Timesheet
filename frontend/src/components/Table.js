@@ -3,12 +3,11 @@ import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "
 //import { defaultData } from "../tableData/defaultData";
 import TableCell from "../components/TableCell";
 import TableEditCell from "../components/TableEditCell";
-import axios from 'axios'
 
-function Table() {
+function Table({ tabelData }) {
     const columnHelper = createColumnHelper();
     const columns = [
-        columnHelper.accessor("_id", {
+        columnHelper.accessor("lineItemId", {
             header: "ID",
             meta: {
                 type: "number",
@@ -34,14 +33,9 @@ function Table() {
         }),
     ];
 
-    const [data, setData] = useState(() => []);
+    const [data, setData] = useState(() => tabelData);
+   
     const [originalData, setOriginalData] = useState(() => []);
-    useEffect(()=> async () =>{
-        
-        const { data } = await axios.get("/api/timesheets/1");
-        setData(data)
-        
-    }, [])
     const [editedRows, setEditedRows] = useState({});
     const table = useReactTable({
         data,
@@ -72,6 +66,10 @@ function Table() {
             },
         },
     });
+     useEffect(() => {
+         setData(tabelData);
+         table.data = data;
+     }, [tabelData, data, table]);
     return (
         <table>
             <thead>

@@ -24,14 +24,6 @@ function TableCell({ getValue, row, column, table }) {
         );
     }
     return <span>{value}</span>;
-    // return (
-    //     <input
-    //         value={value}
-    //         onChange={(e) => setValue(e.target.value)}
-    //         onBlur={onBlur}
-    //         type={column.columnDef.meta?.type || "text"}
-    //     />
-    // );
 }
 
 export default TableCell;

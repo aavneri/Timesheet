@@ -31,7 +31,7 @@ function Header() {
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="mr-auto">
-                            <LinkContainer to="/timesheets/1">
+                            <LinkContainer to="/timesheets">
                                 <Nav.Link>
                                     <i className="fas fa-clock-rotate-left px-1"></i>My TimeSheets
                                 </Nav.Link>

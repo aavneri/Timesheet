@@ -1,18 +1,52 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Table from "../components/Table";
 import SheetDescription from "../components/SheetDescription";
-import { Row, Col } from "react-bootstrap";
+import Loader from '../components/Loader'
+import { Container, Row, Col } from "react-bootstrap";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 function TimesheetScreen() {
+    const id = useParams().id;
+    const [data, setData] = useState(() => {
+        return { description: "" };
+    });
+    const [userInfo, setUserInfo] = useState(
+        localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : null
+    );
+    const [loading, setLoading] = useState(() => true);
+    useEffect(
+        () => async () => {
+            setLoading(true);
+            const config = {
+                headers: {
+                    "Content-type": "application/json",
+                    Authorization: `Bearer ${userInfo.token}`,
+                },
+            };
+            const { data } = await axios.get(`/api/timesheets/${id}/`, config);
+            setData(data);
+            setLoading(false);
+        },
+        [id, userInfo.token]
+    );
+
     return (
-        <Row>
-            <Col sm={12} md={6} lg={4} xl={3}>
-                <SheetDescription title="Timesheet Description:" />
-            </Col>
-            <Col>
-                <Table />
-            </Col>
-        </Row>
+        <Container className="">
+            <h1>{`Timesheet ${id}`}</h1>
+            {loading ? (
+                <Loader />
+            ) : (
+                <Row>
+                    <Col sm={12} md={6} lg={4} xl={3}>
+                        <SheetDescription title="Timesheet Description:" content={data.description} />
+                    </Col>
+                    <Col>
+                        <Table tabelData={data.lineItems} />
+                    </Col>
+                </Row>
+            )}
+        </Container>
     );
 }
 

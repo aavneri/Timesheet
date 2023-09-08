@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 class TimeSheet(models.Model):
-    TimeSheetId = models.AutoField(primary_key=True, editable=False)
+    timesheetId = models.AutoField(primary_key=True, editable=False)
     userId = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     description = models.TextField(max_length=1000, null=True, blank=True)
     rate = models.DecimalField(max_digits=8, decimal_places=2, default=0, null=True, blank=True)
@@ -12,12 +12,12 @@ class TimeSheet(models.Model):
     is_active = models.BooleanField()
 
     def __str__(self) :
-        return str(self.TimeSheetId)
+        return str(self.timesheetId)
 
 class LineItem(models.Model):
-    LineItemId = models.AutoField(primary_key=True, editable=False)
-    TimeSheetId = models.ForeignKey(TimeSheet, on_delete=models.CASCADE, null=False)
+    lineItemId = models.AutoField(primary_key=True, editable=False)
+    timesheetId = models.ForeignKey(TimeSheet, on_delete=models.CASCADE, null=False)
     minutes = models.IntegerField(null=True, blank=True, default=0)
     date = models.DateField(auto_now=False, auto_now_add=False)
     def __str__(self) :
-        return f'{self.TimeSheetId} - {self.LineItemId}'
+        return f'{self.timesheetId} - {self.lineItemId}'

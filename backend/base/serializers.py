@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import TimeSheet, LineItem
 
+
 class UserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField(read_only=True)
     isAdmin = serializers.SerializerMethodField(read_only=True)
@@ -20,6 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
             name = obj.email
         return name
 
+
 class UserSerializerWithToken(UserSerializer):
     token = serializers.SerializerMethodField(read_only=True)
 
@@ -32,14 +34,21 @@ class UserSerializerWithToken(UserSerializer):
         return str(token.access_token)
 
 
-class TimeSheetSerializer(serializers.ModelSerializer):
-    dateCreated = serializers.DateTimeField('%d/%m/%y %H:%M:%S')
-    class Meta:
-        model = TimeSheet
-        fields = '__all__'
-
 class LineItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = LineItem
-        fields = '__all__'
-        
+        fields = "__all__"
+
+
+class TimeSheetSerializer(serializers.ModelSerializer):
+    dateCreated = serializers.DateTimeField("%d/%m/%y %H:%M:%S")
+    lineItems = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = TimeSheet
+        fields = "__all__"
+
+    def get_lineItems(self, obj):
+        items = obj.lineitem_set.all()
+        serializer = LineItemSerializer(items, many=True)
+        return serializer.data
