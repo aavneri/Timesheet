@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Table from "../components/Table";
-import SheetDescription from "../components/SheetDescription";
+import TimeSheetData from "../components/TimeSheetData";
 import Loader from '../components/Loader'
 import { Container, Row, Col } from "react-bootstrap";
 import { useParams } from "react-router-dom";
@@ -39,7 +39,7 @@ function TimesheetScreen() {
             ) : (
                 <Row>
                     <Col sm={12} md={6} lg={4} xl={3}>
-                        <SheetDescription title="Timesheet Description:" content={data.description} />
+                        <TimeSheetData data={data} />
                     </Col>
                     <Col>
                         <Table tabelData={data.lineItems} />

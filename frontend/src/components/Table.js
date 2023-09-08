@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
-//import { defaultData } from "../tableData/defaultData";
 import TableCell from "../components/TableCell";
 import TableEditCell from "../components/TableEditCell";
 
@@ -35,8 +34,11 @@ function Table({ tabelData }) {
 
     const [data, setData] = useState(() => tabelData);
    
-    const [originalData, setOriginalData] = useState(() => []);
+    const [originalData, setOriginalData] = useState(() => tabelData);
     const [editedRows, setEditedRows] = useState({});
+    useEffect(() => {
+        setData(tabelData);
+    }, [tabelData]);
     const table = useReactTable({
         data,
         columns,
@@ -66,12 +68,9 @@ function Table({ tabelData }) {
             },
         },
     });
-     useEffect(() => {
-         setData(tabelData);
-         table.data = data;
-     }, [tabelData, data, table]);
+     
     return (
-        <table>
+        <table className="timesheet">
             <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                     <tr key={headerGroup.id}>

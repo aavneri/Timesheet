@@ -63,7 +63,7 @@ def updateUserProfile(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def timesheets(request, userId):
-    timesheets = TimeSheet.objects.filter(userId = userId)
+    timesheets = TimeSheet.objects.filter(user = userId)
     serializer = TimeSheetSerializer(timesheets, many=True)
     return Response(serializer.data)
 

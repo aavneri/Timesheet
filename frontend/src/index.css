@@ -12,7 +12,7 @@ code {
     monospace;
 }
 
-table {
+table.timesheet {
   font-family: sans-serif;
   border-collapse: collapse;
   border: 1px solid #ccc;
