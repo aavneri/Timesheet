@@ -51,7 +51,7 @@ function TimesheetsScreen() {
                         ) : (
                             <Table striped responsive className="table-sm">
                                 <thead>
-                                    <tr>
+                                    <tr style={{'border-bottom': '1px solid', }}>
                                         <th>ID</th>
                                         <th>Create At</th>
                                         <th>Rate</th>

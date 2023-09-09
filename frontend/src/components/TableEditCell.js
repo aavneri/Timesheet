@@ -13,19 +13,23 @@ function TableEditCell({ row, table }) {
             meta?.revertData(row.index, e.currentTarget.name === "cancel");
         }
     };
-    return meta?.editedRows[row.id] ? (
-        <>
-            <button onClick={setEditedRows} name="cancel">
-                X
-            </button>{" "}
-            <button onClick={setEditedRows} name="done">
-                ✔
-            </button>
-        </>
-    ) : (
-        <button onClick={setEditedRows} name="edit">
-            ✐
-        </button>
+    return (
+        <div className="edit-cell-container">
+            {meta?.editedRows[row.id] ? (
+                <div className="edit-cell">
+                    <button onClick={setEditedRows} name="cancel">
+                        X
+                    </button>{" "}
+                    <button onClick={setEditedRows} name="done">
+                        ✔
+                    </button>
+                </div>
+            ) : (
+                <button onClick={setEditedRows} name="edit">
+                    ✐
+                </button>
+            )}
+        </div>
     );
 }
 
