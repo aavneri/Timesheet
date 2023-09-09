@@ -4,10 +4,10 @@ import TimeSheetData from "../components/TimeSheetData";
 import Loader from "../components/Loader";
 import { Container, Row, Col } from "react-bootstrap";
 import { useParams } from "react-router-dom";
-import { Endpoints } from '../constants'
+import { Endpoints } from "../constants";
 import axios from "axios";
 
-function TimesheetScreen() {
+function TimesheetDetailsScreen() {
     const id = useParams().id;
     const [data, setData] = useState(() => {
         return { description: "" };
@@ -27,7 +27,9 @@ function TimesheetScreen() {
         setData(data);
         setLoading(false);
     }, [id, userInfo.token]);
-    useEffect(() => {getTimesheetData()}, [id, userInfo.token, getTimesheetData]);
+    useEffect(() => {
+        getTimesheetData();
+    }, [id, userInfo.token, getTimesheetData]);
     useEffect(() => {
         window.addEventListener("lineItemUpdated", getTimesheetData);
         return () => window.removeEventListener("lineItemUpdated", getTimesheetData);
@@ -51,4 +53,4 @@ function TimesheetScreen() {
     );
 }
 
-export default TimesheetScreen;
+export default TimesheetDetailsScreen;
