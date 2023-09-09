@@ -4,6 +4,7 @@ import TimeSheetData from "../components/TimeSheetData";
 import Loader from "../components/Loader";
 import { Container, Row, Col } from "react-bootstrap";
 import { useParams } from "react-router-dom";
+import { Endpoints } from '../constants'
 import axios from "axios";
 
 function TimesheetScreen() {
@@ -22,7 +23,7 @@ function TimesheetScreen() {
                 Authorization: `Bearer ${userInfo.token}`,
             },
         };
-        const { data } = await axios.get(`/api/timesheets/${id}`, config);
+        const { data } = await axios.get(`${Endpoints.GET_TIMESHEET_DETAIL(id)}`, config);
         setData(data);
         setLoading(false);
     }, [id, userInfo.token]);

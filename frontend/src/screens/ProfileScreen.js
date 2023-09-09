@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button, Row, Col, Form } from "react-bootstrap";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
+import { Endpoints } from '../constants'
 import axios from "axios";
 
 function ProfileScreen() {
@@ -29,7 +30,7 @@ function ProfileScreen() {
                         Authorization: `Bearer ${userInfo.token}`,
                     },
                 };
-                const { data } = await axios.put(`/api/users/profile/update`, user, config);
+                const { data } = await axios.put(Endpoints.UPDATE_PROFILE, user, config);
                 localStorage.setItem("userInfo", JSON.stringify(data));
                 setError("");
                 setUserInfo(data);

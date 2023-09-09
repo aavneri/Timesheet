@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Form, InputGroup } from "react-bootstrap";
 import debounce from "lodash.debounce";
+import { Endpoints } from '../constants'
 
 function TimeSheetData({ timesheetData }) {
     const [data, setData] = useState(timesheetData);
@@ -18,7 +19,7 @@ function TimeSheetData({ timesheetData }) {
                     },
                 };
                 const { response } = await axios.put(
-                    `/api/timesheets/update/${data.timesheetId}/`,
+                    `${Endpoints.UPDATE_TIMESHEET(data.timesheetId)}`,
                     { rate: data.rate, description: data.description },
                     config
                 );

@@ -4,6 +4,7 @@ import { Form, Button, Row, Col } from "react-bootstrap";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
 import FormContainer from "../components/FormContainer";
+import { Endpoints } from '../constants'
 import axios from "axios";
 
 function RegisterScreen() {
@@ -31,7 +32,7 @@ function RegisterScreen() {
                 };
 
                 const { data } = await axios.post(
-                    "/api/users/register",
+                    Endpoints.REGISTER,
                     { name: name, email: email, password: password },
                     config
                 );
@@ -105,7 +106,7 @@ function RegisterScreen() {
                         onChange={(e) => setConfirmPassword(e.target.value)}
                     ></Form.Control>
                 </Form.Group>
-                <Button type="submit" variant="primary">
+                <Button type="submit" variant="primary" className="my-3">
                     Register
                 </Button>
             </Form>

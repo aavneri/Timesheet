@@ -5,6 +5,7 @@ import { LinkContainer } from "react-router-bootstrap";
 import axios from "axios";
 import Message from "../components/Message";
 import Loader from "../components/Loader";
+import { Endpoints } from "../constants";
 
 function TimesheetsScreen() {
     const [timesheets, setTimesheets] = useState(() => []);
@@ -24,7 +25,7 @@ function TimesheetsScreen() {
                         Authorization: `Bearer ${userInfo.token}`,
                     },
                 };
-                const { data } = await axios.get(`/api/users/${userId}/timesheets`, config);
+                const { data } = await axios.get(Endpoints.GET_USER_TIMESHEET(userId), config);
                 setLoading(false);
                 setTimesheets(data);
             }

@@ -3,6 +3,7 @@ import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "
 import TableCell from "../components/TableCell";
 import TableEditCell from "../components/TableEditCell";
 import axios from "axios";
+import { Endpoints } from '../constants'
 
 function Table({ tabelData }) {
     const columnHelper = createColumnHelper();
@@ -50,7 +51,11 @@ function Table({ tabelData }) {
                     Authorization: `Bearer ${userInfo.token}`,
                 },
             };
-            const { data } = await axios.put(`/api/lineitems/update/${lineItem.lineItemId}/`, lineItem, config);
+            const { data } = await axios.put(
+                `${Endpoints.UPDATE_LINE_ITEM(lineItem.lineItemId)}`,
+                lineItem,
+                config
+            );
             window.dispatchEvent(new Event("lineItemUpdated"));
         })();
 
