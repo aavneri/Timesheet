@@ -16,10 +16,10 @@ function App() {
                 <Container>
                     <Routes>
                         <Route path="/" element={<HomeScreen />} exact />
-                        <Route path="/timesheets/" element={<TimesheetsScreen />} />
-                        <Route path="/timesheets/:id/" element={<TimesheetScreen />} />
-                        <Route path="/login/" element={<LoginScreen />} />
-                        <Route path="/register/" element={<RegisterScreen />} />
+                        <Route path="/timesheets" element={<TimesheetsScreen />} />
+                        <Route path="/timesheets/:id" element={<TimesheetScreen />} />
+                        <Route path="/login" element={<LoginScreen />} />
+                        <Route path="/register" element={<RegisterScreen />} />
                         <Route path="/profile" element={<ProfileScreen />} />
                     </Routes>
                 </Container>

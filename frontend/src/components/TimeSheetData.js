@@ -1,15 +1,37 @@
-import React, { useState, useEffect } from "react";
+import axios from "axios";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Form, InputGroup } from "react-bootstrap";
+import debounce from "lodash.debounce";
 
-function TimeSheetData({ data }) {
-    const [description, setDescription] = useState(() => data.description);
-    const [rate, setRate] = useState(() => Number(data.rate));
-    const [totalTime, setTotalTime] = useState(() => data.totalTime);
+function TimeSheetData({ timesheetData }) {
+    const [data, setData] = useState(timesheetData);
+    const [userInfo, setUserInfo] = useState(
+        localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : null
+    );
+    const updateTimeSheetData = useCallback(
+        (data) =>
+            (async () => {
+                const config = {
+                    headers: {
+                        "Content-type": "application/json",
+                        Authorization: `Bearer ${userInfo.token}`,
+                    },
+                };
+                const { response } = await axios.put(
+                    `/api/timesheets/update/${data.timesheetId}/`,
+                    { rate: data.rate, description: data.description },
+                    config
+                );
+            })(),
+        [userInfo.token]
+    );
+    const debouncedUpdateTimeSheetData = useMemo(() => debounce(updateTimeSheetData, 300), [updateTimeSheetData]);
     useEffect(() => {
-        setDescription(data.description);
-        setRate(Number(data.rate));
-        setTotalTime(data.totalTime);
-    }, [data]);
+        setData(timesheetData);
+        return () => {
+            debouncedUpdateTimeSheetData.cancel();
+        };
+    }, [timesheetData, debouncedUpdateTimeSheetData]);
     return (
         <Form>
             <Form.Group className="mb-3" controlId="textArea">
@@ -17,8 +39,12 @@ function TimeSheetData({ data }) {
                 <Form.Control
                     as="textarea"
                     rows={2}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={data.description}
+                    onChange={(e) => {
+                        const newData = { ...data, description: e.target.value };
+                        setData(newData);
+                        debouncedUpdateTimeSheetData(newData);
+                    }}
                 />
             </Form.Group>
             <Form.Label>Rate:</Form.Label>
@@ -27,8 +53,12 @@ function TimeSheetData({ data }) {
                 <Form.Control
                     aria-label="Rate (to the nearest dollar)"
                     type="number"
-                    value={rate}
-                    onChange={(e) => setRate(e.target.value)}
+                    value={data.rate}
+                    onChange={(e) => {
+                        const newData = { ...data, rate: e.target.value };
+                        setData(newData);
+                        debouncedUpdateTimeSheetData(newData);
+                    }}
                     min={0}
                     max={10000}
                 />
@@ -36,11 +66,11 @@ function TimeSheetData({ data }) {
             </InputGroup>
             <Form.Group className="mb-3" controlId="totalHours">
                 <Form.Label>Total Hours:</Form.Label>
-                <Form.Control type="number" value={totalTime} readOnly />
+                <Form.Control type="number" value={data.totalTime} readOnly />
             </Form.Group>
             <Form.Group className="mb-3" controlId="totalHours">
                 <Form.Label>Total Cost:</Form.Label>
-                <Form.Control type="number" value={totalTime * rate} readOnly />
+                <Form.Control type="number" value={data.totalTime * data.rate} readOnly />
             </Form.Group>
         </Form>
     );

@@ -20,29 +20,30 @@ function RegisterScreen() {
 
     const navigate = useNavigate();
     const redirect = window.location.search ? window.location.search.split("=")[1] : "/";
-    const register = (name, email, password) => (async () => {
-        setloading(true);
-        try {
-            const config = {
-                headers: {
-                    "Content-type": "application/json",
-                },
-            };
+    const register = (name, email, password) =>
+        (async () => {
+            setloading(true);
+            try {
+                const config = {
+                    headers: {
+                        "Content-type": "application/json",
+                    },
+                };
 
-            const { data } = await axios.post(
-                "/api/users/register/",
-                { name: name, email: email, password: password },
-                config
-            );
-            localStorage.setItem("userInfo", JSON.stringify(data));
-            setError("");
-            setUserInfo(data);
-            window.dispatchEvent(new Event("login"));
-        } catch (error) {
-            setError(error.response && error.response.data.detail ? error.response.data.detail : error.detail);
-        }
-        setloading(false);
-    })();
+                const { data } = await axios.post(
+                    "/api/users/register",
+                    { name: name, email: email, password: password },
+                    config
+                );
+                localStorage.setItem("userInfo", JSON.stringify(data));
+                setError("");
+                setUserInfo(data);
+                window.dispatchEvent(new Event("login"));
+            } catch (error) {
+                setError(error.response && error.response.data.detail ? error.response.data.detail : error.detail);
+            }
+            setloading(false);
+        })();
     useEffect(() => {
         if (userInfo) {
             navigate(redirect);

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Table from "../components/Table";
 import TimeSheetData from "../components/TimeSheetData";
-import Loader from '../components/Loader'
+import Loader from "../components/Loader";
 import { Container, Row, Col } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -15,22 +15,22 @@ function TimesheetScreen() {
         localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : null
     );
     const [loading, setLoading] = useState(() => true);
-    useEffect(
-        () => async () => {
-            setLoading(true);
-            const config = {
-                headers: {
-                    "Content-type": "application/json",
-                    Authorization: `Bearer ${userInfo.token}`,
-                },
-            };
-            const { data } = await axios.get(`/api/timesheets/${id}/`, config);
-            setData(data);
-            setLoading(false);
-        },
-        [id, userInfo.token]
-    );
-
+    const getTimesheetData = useCallback(async () => {
+        const config = {
+            headers: {
+                "Content-type": "application/json",
+                Authorization: `Bearer ${userInfo.token}`,
+            },
+        };
+        const { data } = await axios.get(`/api/timesheets/${id}`, config);
+        setData(data);
+        setLoading(false);
+    }, [id, userInfo.token]);
+    useEffect(() => {getTimesheetData()}, [id, userInfo.token, getTimesheetData]);
+    useEffect(() => {
+        window.addEventListener("lineItemUpdated", getTimesheetData);
+        return () => window.removeEventListener("lineItemUpdated", getTimesheetData);
+    }, [getTimesheetData]);
     return (
         <Container className="">
             <h1>{`Timesheet ${id}`}</h1>
@@ -39,7 +39,7 @@ function TimesheetScreen() {
             ) : (
                 <Row>
                     <Col sm={12} md={6} lg={4} xl={3}>
-                        <TimeSheetData data={data} />
+                        <TimeSheetData timesheetData={data} />
                     </Col>
                     <Col>
                         <Table tabelData={data.lineItems} />

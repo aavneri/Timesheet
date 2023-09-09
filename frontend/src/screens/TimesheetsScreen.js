@@ -24,7 +24,7 @@ function TimesheetsScreen() {
                         Authorization: `Bearer ${userInfo.token}`,
                     },
                 };
-                const { data } = await axios.get(`/api/users/${userId}/timesheets/`, config);
+                const { data } = await axios.get(`/api/users/${userId}/timesheets`, config);
                 setLoading(false);
                 setTimesheets(data);
             }
@@ -36,7 +36,7 @@ function TimesheetsScreen() {
             {!userInfo ? (
                 <Row className="py-3">
                     <Col>
-                        Please <Link to={"/login?redirect=/timesheets/"}>Log in</Link> to see your timesheets
+                        Please <Link to={"/login?redirect=/timesheets"}>Log in</Link> to see your timesheets
                     </Col>
                 </Row>
             ) : (
@@ -54,7 +54,8 @@ function TimesheetsScreen() {
                                         <th>ID</th>
                                         <th>Create At</th>
                                         <th>Rate</th>
-                                        <th>Total Time</th>
+                                        <th>Total Time (min)</th>
+                                        <th>Total Cost</th>
                                         <th>Description</th>
                                         <th style={{ width: "0.75rem" }}></th>
                                     </tr>
@@ -66,6 +67,7 @@ function TimesheetsScreen() {
                                             <td>{item.dateCreated}</td>
                                             <td>${item.rate}</td>
                                             <td>{item.totalTime}</td>
+                                            <td>${item.totalTime * item.rate}</td>
                                             <td>{item.description}</td>
                                             <td>
                                                 <LinkContainer to={`/timesheets/${item.timesheetId}`}>

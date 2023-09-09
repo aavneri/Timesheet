@@ -33,7 +33,7 @@ function LoginScreen() {
                     },
                 };
 
-                const { data } = await axios.post("/api/users/login/", { username: email, password: password }, config);
+                const { data } = await axios.post("/api/users/login", { username: email, password: password }, config);
                 localStorage.setItem("userInfo", JSON.stringify(data));
                 setError("");
                 setUserInfo(data);

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
 import TableCell from "../components/TableCell";
 import TableEditCell from "../components/TableEditCell";
+import axios from "axios";
 
 function Table({ tabelData }) {
     const columnHelper = createColumnHelper();
@@ -31,14 +32,28 @@ function Table({ tabelData }) {
             cell: TableEditCell,
         }),
     ];
-
+    const [userInfo, setUserInfo] = useState(
+        localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : null
+    );
     const [data, setData] = useState(() => tabelData);
-   
     const [originalData, setOriginalData] = useState(() => tabelData);
     const [editedRows, setEditedRows] = useState({});
     useEffect(() => {
         setData(tabelData);
     }, [tabelData]);
+
+    const saveLineItem = (lineItem) =>
+        (async () => {
+            const config = {
+                headers: {
+                    "Content-type": "application/json",
+                    Authorization: `Bearer ${userInfo.token}`,
+                },
+            };
+            const { data } = await axios.put(`/api/lineitems/update/${lineItem.lineItemId}/`, lineItem, config);
+            window.dispatchEvent(new Event("lineItemUpdated"));
+        })();
+
     const table = useReactTable({
         data,
         columns,
@@ -57,10 +72,12 @@ function Table({ tabelData }) {
                 setData((old) =>
                     old.map((row, index) => {
                         if (index === rowIndex) {
-                            return {
+                            const newLineItem = {
                                 ...old[rowIndex],
                                 [columnId]: value,
                             };
+                            saveLineItem(newLineItem);
+                            return newLineItem;
                         }
                         return row;
                     })
@@ -68,7 +85,7 @@ function Table({ tabelData }) {
             },
         },
     });
-     
+
     return (
         <table className="timesheet">
             <thead>

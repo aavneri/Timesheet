@@ -7,9 +7,9 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
-from .defaultData import defaultData
-from .models import TimeSheet
-from .serializers import TimeSheetSerializer, UserSerializerWithToken
+from .models import TimeSheet, LineItem
+from .serializers import TimeSheetSerializer, UserSerializerWithToken, LineItemSerializer
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -28,7 +28,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 
 @api_view(["POST"])
-def registerUser(request):
+def register_user(request):
     data = request.data
     try:
         user = User.objects.create(
@@ -40,44 +40,69 @@ def registerUser(request):
         serializer = UserSerializerWithToken(user, many=False)
         return Response(serializer.data)
     except:
-        message = {'detail':'User with this email already exists!'}
+        message = {"detail": "User with this email already exists!"}
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
-    
+
+
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
-def updateUserProfile(request):
+def update_user_profile(request):
     user = request.user
     serializer = UserSerializerWithToken(user, many=False)
 
     data = request.data
-    user.first_name = data['name']
-    user.username = data['email']
-    user.email = data['email']
+    user.first_name = data["name"]
+    user.username = data["email"]
+    user.email = data["email"]
 
-    if data['password'] != '':
-        user.password = make_password(data['password'])
+    if data["password"] != "":
+        user.password = make_password(data["password"])
 
     user.save()
     return Response(serializer.data)
 
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def timesheets(request, userId):
-    timesheets = TimeSheet.objects.filter(user = userId)
+    timesheets = TimeSheet.objects.filter(user=userId)
     serializer = TimeSheetSerializer(timesheets, many=True)
     return Response(serializer.data)
 
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def getTimesheet(request, pk):
-    timesheets = TimeSheet.objects.get(timesheetId = pk)
-    serializer = TimeSheetSerializer(timesheets, many=False)
-    return Response(serializer.data)
-
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def getLineItem(request, pk):
-    lineItem = next((li for li in defaultData if li['_id'] == int(pk)), None)
-    return Response(lineItem)
+def get_timesheet(request, pk):
+    try:
+        timesheet = TimeSheet.objects.get(timesheetId=pk)
+        serializer = TimeSheetSerializer(timesheet, many=False)
+        return Response(serializer.data)
+    except Exception:
+        message = {"detail": f"Unable to find timesheet with id {pk}"}
+        return Response(message, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(["PUT"])
+@permission_classes([IsAuthenticated])
+def update_timesheet(request, pk):
+    try:
+        timesheet = TimeSheet.objects.get(timesheetId=pk)
+        timesheet.description = request.data['description']
+        timesheet.rate = request.data['rate']
+        timesheet.save()
+        serializer = TimeSheetSerializer(timesheet, many=False)
+        return Response(serializer.data)
+    except Exception as err:
+        message = {"detail": f"Unable to find timesheet with id {pk}"}
+        return Response(message, status=status.HTTP_404_NOT_FOUND)    
 
+@api_view(["PUT"])
+@permission_classes([IsAuthenticated])
+def update_line_item(request, pk):
+    try:
+        lineItem = LineItem.objects.get(lineItemId=pk)
+        lineItem.minutes = request.data['minutes']
+        lineItem.date = request.data['date']
+        lineItem.save()
+        return Response(LineItemSerializer(lineItem).data, status=status.HTTP_200_OK)
+    except Exception as err:
+        return Response(err, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

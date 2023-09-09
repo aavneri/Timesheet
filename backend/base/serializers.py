@@ -52,3 +52,4 @@ class TimeSheetSerializer(serializers.ModelSerializer):
         items = obj.lineitem_set.all()
         serializer = LineItemSerializer(items, many=True)
         return serializer.data
+

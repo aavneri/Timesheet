@@ -29,7 +29,7 @@ function ProfileScreen() {
                         Authorization: `Bearer ${userInfo.token}`,
                     },
                 };
-                const { data } = await axios.put(`/api/users/profile/update/`, user, config);
+                const { data } = await axios.put(`/api/users/profile/update`, user, config);
                 localStorage.setItem("userInfo", JSON.stringify(data));
                 setError("");
                 setUserInfo(data);

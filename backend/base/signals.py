@@ -3,13 +3,13 @@ from django.contrib.auth.models import User
 from . import models
 
 
-def updateUser(sender, instance, **kwargs):
+def update_user(sender, instance, **kwargs):
     user = instance
     if user.email != "":
         user.username = user.email
 
 
-def updateTimesheet(sender, instance, **kwargs):
+def update_timesheet(sender, instance, **kwargs):
     timesheet = instance.timesheet
     lineItems = timesheet.lineitem_set
     totalMinutes = 0
@@ -19,6 +19,6 @@ def updateTimesheet(sender, instance, **kwargs):
     timesheet.save()
 
 
-pre_save.connect(updateUser, sender=User)
-post_save.connect(updateTimesheet, sender=models.LineItem)
-post_delete.connect(updateTimesheet, sender=models.LineItem)
+pre_save.connect(update_user, sender=User)
+post_save.connect(update_timesheet, sender=models.LineItem)
+post_delete.connect(update_timesheet, sender=models.LineItem)
