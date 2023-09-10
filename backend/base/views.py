@@ -8,7 +8,11 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from .models import TimeSheet, LineItem
-from .serializers import TimeSheetSerializer, UserSerializerWithToken, LineItemSerializer
+from .serializers import (
+    TimeSheetSerializer,
+    UserSerializerWithToken,
+    LineItemSerializer,
+)
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -80,54 +84,83 @@ def get_timesheet(request, pk):
     except Exception:
         message = {"detail": f"Unable to find timesheet with id {pk}"}
         return Response(message, status=status.HTTP_404_NOT_FOUND)
-    
+
+
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def update_timesheet(request, pk):
     try:
         timesheet = TimeSheet.objects.get(timesheetId=pk)
-        timesheet.description = request.data['description']
-        timesheet.rate = request.data['rate']
+        timesheet.description = request.data["description"]
+        timesheet.rate = request.data["rate"]
         timesheet.save()
         serializer = TimeSheetSerializer(timesheet, many=False)
         return Response(serializer.data)
     except Exception as err:
         message = {"detail": f"Unable to find timesheet with id {pk}"}
-        return Response(message, status=status.HTTP_404_NOT_FOUND)    
+        return Response(message, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_timesheet(request):
+    try:
+        user = request.user
+        timesheet = TimeSheet.objects.create(
+            user=user,
+        )
+        serializer = TimeSheetSerializer(timesheet, many=False)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    except Exception as err:
+        return Response(err, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def delete_timesheet(request, pk):
+    try:
+        timesheet = TimeSheet.objects.get(timesheetId=pk)
+        timesheet.delete()
+        return Response(pk, status=status.HTTP_200_OK)
+    except Exception as err:
+        return Response(err, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def update_line_item(request, pk):
     try:
         lineItem = LineItem.objects.get(lineItemId=pk)
-        lineItem.minutes = request.data['minutes']
-        lineItem.date = request.data['date']
+        lineItem.minutes = request.data["minutes"]
+        lineItem.date = request.data["date"]
         lineItem.save()
         return Response(LineItemSerializer(lineItem).data, status=status.HTTP_200_OK)
     except Exception as err:
         return Response(err, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_line_item(request):
     try:
         lineItem = LineItem.objects.create(
-            date = request.data['date'],
-            minutes = request.data['minutes'],
-            timesheet = TimeSheet.objects.get(timesheetId=request.data['timesheetId'])
+            date=request.data["date"],
+            minutes=request.data["minutes"],
+            timesheet=TimeSheet.objects.get(timesheetId=request.data["timesheetId"]),
         )
         lineItem.save()
-        return Response(LineItemSerializer(lineItem).data, status=status.HTTP_201_CREATED)
+        return Response(
+            LineItemSerializer(lineItem).data, status=status.HTTP_201_CREATED
+        )
     except Exception as err:
         return Response(err, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
+
 @api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
 def delete_line_item(request):
     try:
-        for pk in request.data['lineItemIds']:
+        for pk in request.data["lineItemIds"]:
             lineItem = LineItem.objects.get(lineItemId=pk)
             lineItem.delete()
-        return Response(request.data['lineItemIds'], status=status.HTTP_200_OK)
+        return Response(request.data["lineItemIds"], status=status.HTTP_200_OK)
     except Exception as err:
         return Response(err, status=status.HTTP_404_NOT_FOUND)

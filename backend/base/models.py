@@ -9,7 +9,7 @@ class TimeSheet(models.Model):
     rate = models.IntegerField(null=True, blank=True, default=0)
     totalTime = models.IntegerField(null=True, blank=True, default=0)
     dateCreated = models.DateTimeField(auto_now_add=True)
-    is_active = models.BooleanField()
+    is_active = models.BooleanField(default=True)
 
     def __str__(self) :
         return str(self.timesheetId)

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Row, Col, Table, Button, Container } from "react-bootstrap";
+import { Table, Button, Container } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import axios from "axios";
-import Message from "../components/Message";
 import Loader from "../components/Loader";
 import { Endpoints } from "../constants";
 
@@ -32,6 +31,30 @@ function TimesheetsScreen() {
         },
         [userId, userInfo.token]
     );
+
+    const addTimesheet = () =>
+        (async () => {
+            const config = {
+                headers: {
+                    "Content-type": "application/json",
+                    Authorization: `Bearer ${userInfo.token}`,
+                },
+            };
+            const { data } = await axios.post(Endpoints.CREATE_TIMESHEET, {}, config);
+            setTimesheets([...timesheets, data]);
+        })();
+
+    const deleteTimesheet = (timesheetId) =>
+        (async () => {
+            const config = {
+                headers: {
+                    "Content-type": "application/json",
+                    Authorization: `Bearer ${userInfo.token}`,
+                },
+            };
+            const { data } = await axios.delete(Endpoints.DELETE_TIMESHEET(timesheetId), config);
+            setTimesheets(timesheets.filter((timesheet) => timesheet.timesheetId !== timesheetId));
+        })();
     return (
         <Container>
             {!userInfo ? (
@@ -43,8 +66,6 @@ function TimesheetsScreen() {
                     <h1>My Timesheets</h1>
                     {loading ? (
                         <Loader />
-                    ) : timesheets.length === 0 ? (
-                        <Message variant="info">You dont have any timesheets yet</Message>
                     ) : (
                         <Table striped responsive className="table-sm timesheets">
                             <thead>
@@ -89,8 +110,15 @@ function TimesheetsScreen() {
                                         </td>
                                         <td>
                                             <div>
-                                                <Button className="btn-sm">
-                                                    <i className="fas fa-trash"></i> Delete
+                                                <Button
+                                                    variant="danger"
+                                                    className="btn-sm"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        deleteTimesheet(item.timesheetId);
+                                                    }}
+                                                >
+                                                    Delete <i className="fas fa-trash"></i>
                                                 </Button>
                                             </div>
                                         </td>
@@ -100,7 +128,16 @@ function TimesheetsScreen() {
                             <tfoot>
                                 <tr>
                                     <th colSpan={8} align="right">
-                                        <Button className="btn-sm">Add New <i className="fas fa-plus"/></Button>
+                                        <Button
+                                            variant="success"
+                                            className="btn-sm"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                addTimesheet();
+                                            }}
+                                        >
+                                            Add New <i className="fas fa-plus" />
+                                        </Button>
                                     </th>
                                 </tr>
                             </tfoot>

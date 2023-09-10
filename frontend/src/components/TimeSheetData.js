@@ -40,7 +40,7 @@ function TimeSheetData({ timesheetData }) {
                 <Form.Control
                     as="textarea"
                     rows={2}
-                    value={data.description}
+                    value={data.description ?? ""}
                     onChange={(e) => {
                         const newData = { ...data, description: e.target.value };
                         setData(newData);

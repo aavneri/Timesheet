@@ -9,6 +9,8 @@ export class Endpoints {
     static GET_TIMESHEET_DETAIL = (id) => `/api/timesheets/${id}`;
     static GET_USER_TIMESHEET = (userId) => `/api/users/${userId}/timesheets/`;
     static UPDATE_TIMESHEET = (timesheetId) => `/api/timesheets/update/${timesheetId}/`;
+    static CREATE_TIMESHEET = "/api/timesheets/create/";
+    static DELETE_TIMESHEET = (timesheetId) => `/api/timesheets/delete/${timesheetId}/`;
 
     //lineitem
     static UPDATE_LINE_ITEM = (lineItemId) => `/api/lineitems/update/${lineItemId}/`;
