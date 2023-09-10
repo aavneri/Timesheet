@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button, Row, Col, Form } from "react-bootstrap";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
 import { Endpoints } from "../constants";
 import { authRequestConfig } from "../services/RequestConfigs";
+import Logout from '../common/Logout'
 import axios from "axios";
 
 function ProfileScreen() {
+    const navigate = useNavigate();
+    const location = useLocation();
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -19,7 +22,6 @@ function ProfileScreen() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const navigate = useNavigate();
 
     const updateUserProfile = (user) =>
         (async () => {
@@ -31,6 +33,10 @@ function ProfileScreen() {
                 setUserInfo(data);
                 window.dispatchEvent(new Event("login"));
             } catch (error) {
+                if (error.response && error.response.status === 401) {
+                    Logout();
+                    navigate(`/login?redirect=${location.pathname}`);
+                }
                 setError(error.response && error.response.data.detail ? error.response.data.detail : error.detail);
             }
             setLoading(false);

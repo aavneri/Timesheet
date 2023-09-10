@@ -3,22 +3,29 @@ import { Nav, Navbar, Container, NavDropdown } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { useNavigate } from "react-router-dom";
 function Header() {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const [userInfo, setUserInfo] = useState(
         localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : null
     );
     const logoutHandler = () => {
         localStorage.removeItem("userInfo");
         setUserInfo(null);
-        navigate("/")
+        navigate("/");
     };
 
     useEffect(() => {
         const handleLogin = () => {
             setUserInfo(localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : null);
         };
+        const handleLogout = () => {
+            setUserInfo(null);
+        };
         window.addEventListener("login", handleLogin);
-        return () => window.removeEventListener("login", handleLogin);
+        window.addEventListener("logout", handleLogout);
+        return () => {
+            window.removeEventListener("login", handleLogin);
+            window.removeEventListener("logout", handleLogout);
+        };
     }, []);
 
     return (

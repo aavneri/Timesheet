@@ -3,24 +3,32 @@ import Table from "../components/Table";
 import TimeSheetData from "../components/TimeSheetData";
 import Loader from "../components/Loader";
 import { Container, Row, Col } from "react-bootstrap";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Endpoints } from "../constants";
+import Logout from '../common/Logout'
 import { authRequestConfig } from "../services/RequestConfigs";
 import axios from "axios";
 
 function TimesheetDetailsScreen() {
+    const location = useLocation();
+    const navigate = useNavigate();
     const id = useParams().id;
     const [data, setData] = useState(() => {
         return { description: "" };
     });
-    // const [userInfo, setUserInfo] = useState(
-    //     localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : null
-    // );
+
     const [loading, setLoading] = useState(() => true);
     const getTimesheetData = useCallback(async () => {
-        const { data } = await axios.get(`${Endpoints.GET_TIMESHEET_DETAIL(id)}`, authRequestConfig());
-        setData(data);
-        setLoading(false);
+        try {
+            const { data } = await axios.get(`${Endpoints.GET_TIMESHEET_DETAIL(id)}`, authRequestConfig());
+            setData(data);
+            setLoading(false);
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                Logout();
+                navigate(`/login?redirect=${location.pathname}`);
+            }
+        }
     }, [id]);
 
     useEffect(() => {

@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
+import { useLocation, useNavigate } from "react-router-dom";
 import TableCell from "../components/TableCell";
 import TableEditCell from "../components/TableEditCell";
 import TableFooterCell from "../components/TableFooterCell";
 import axios from "axios";
 import { Endpoints } from "../constants";
 import { authRequestConfig } from "../services/RequestConfigs";
+import Logout from "../common/Logout";
 
 function Table({ tabelData, sheetId }) {
+    const location = useLocation();
+    const navigate = useNavigate();
     const columnHelper = createColumnHelper();
     const columns = [
         columnHelper.accessor("lineItemId", {
@@ -44,22 +48,36 @@ function Table({ tabelData, sheetId }) {
     }, [tabelData]);
 
     const deleteLineItems = async (setFilterFunc, lineItemIds) => {
-        const config = authRequestConfig();
-        config.data = { lineItemIds: [...lineItemIds] };
-        const { data } = await axios.delete(Endpoints.DELETE_LINE_ITEM, config);
-        setData(setFilterFunc);
-        setOriginalData(setFilterFunc);
-        window.dispatchEvent(new Event("lineItemUpdated"));
+        try {
+            const config = authRequestConfig();
+            config.data = { lineItemIds: [...lineItemIds] };
+            const { data } = await axios.delete(Endpoints.DELETE_LINE_ITEM, config);
+            setData(setFilterFunc);
+            setOriginalData(setFilterFunc);
+            window.dispatchEvent(new Event("lineItemUpdated"));
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                Logout();
+                navigate(`/login?redirect=${location.pathname}`);
+            }
+        }
     };
 
     const saveLineItem = (lineItem) =>
         (async () => {
-            const { data } = await axios.put(
-                `${Endpoints.UPDATE_LINE_ITEM(lineItem.lineItemId)}`,
-                lineItem,
-                authRequestConfig()
-            );
-            window.dispatchEvent(new Event("lineItemUpdated"));
+            try {
+                const { data } = await axios.put(
+                    `${Endpoints.UPDATE_LINE_ITEM(lineItem.lineItemId)}`,
+                    lineItem,
+                    authRequestConfig()
+                );
+                window.dispatchEvent(new Event("lineItemUpdated"));
+            } catch (error) {
+                if (error.response && error.response.status === 401) {
+                    Logout();
+                    navigate(`/login?redirect=${location.pathname}`);
+                }
+            }
         })();
     const date = new Date();
     const table = useReactTable({
@@ -93,23 +111,30 @@ function Table({ tabelData, sheetId }) {
             },
             addRow: () => {
                 (async () => {
-                    const today = new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000)
-                        .toISOString()
-                        .split("T")[0];
+                    try {
+                        const today = new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000)
+                            .toISOString()
+                            .split("T")[0];
 
-                    const { data } = await axios.post(
-                        Endpoints.CREATE_LINE_ITEM,
-                        { date: today, minutes: 0, timesheetId: timesheetId },
-                        authRequestConfig()
-                    );
-                    const newRow = {
-                        lineItemId: data.lineItemId,
-                        date: today,
-                        minutes: 0,
-                    };
-                    const setFunc = (old) => [...old, newRow];
-                    setData(setFunc);
-                    setOriginalData(setFunc);
+                        const { data } = await axios.post(
+                            Endpoints.CREATE_LINE_ITEM,
+                            { date: today, minutes: 0, timesheetId: timesheetId },
+                            authRequestConfig()
+                        );
+                        const newRow = {
+                            lineItemId: data.lineItemId,
+                            date: today,
+                            minutes: 0,
+                        };
+                        const setFunc = (old) => [...old, newRow];
+                        setData(setFunc);
+                        setOriginalData(setFunc);
+                    } catch (error) {
+                        if (error.response && error.response.status === 401) {
+                            Logout();
+                            navigate(`/login?redirect=${location.pathname}`);
+                        }
+                    }
                 })();
             },
             removeRow: (rowIndex) => {

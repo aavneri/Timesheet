@@ -1,20 +1,31 @@
 import axios from "axios";
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Form, InputGroup } from "react-bootstrap";
 import debounce from "lodash.debounce";
 import { Endpoints } from "../constants";
+import Logout from '../common/Logout'
 import { authRequestConfig } from "../services/RequestConfigs";
 
 function TimeSheetData({ timesheetData }) {
+    const location = useLocation()
+    const navigate = useNavigate()
     const [data, setData] = useState(timesheetData);
     const updateTimeSheetData = useCallback(
         (data) =>
             (async () => {
-                const { response } = await axios.put(
-                    `${Endpoints.UPDATE_TIMESHEET(data.timesheetId)}`,
-                    { rate: data.rate, description: data.description },
-                    authRequestConfig()
-                );
+                try {
+                    const { response } = await axios.put(
+                        `${Endpoints.UPDATE_TIMESHEET(data.timesheetId)}`,
+                        { rate: data.rate, description: data.description },
+                        authRequestConfig()
+                    );
+                } catch (error) {
+                    if (error.response && error.response.status === 401) {
+                        Logout();
+                        navigate(`/login?redirect=${location.pathname}`);
+                    }
+                }
             })(),
         []
     );

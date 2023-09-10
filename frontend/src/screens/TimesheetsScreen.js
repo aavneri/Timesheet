@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Table, Button, Container } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import axios from "axios";
 import Loader from "../components/Loader";
 import { Endpoints } from "../constants";
 import { authRequestConfig } from "../services/RequestConfigs";
+import Logout from "../common/Logout";
 
 function TimesheetsScreen() {
+    const location = useLocation();
+    const navigate = useNavigate();
     const [timesheets, setTimesheets] = useState(() => []);
     const [loading, setLoading] = useState(() => true);
-
     const [userInfo, setUserInfo] = useState(
         localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : null
     );
@@ -26,9 +28,10 @@ function TimesheetsScreen() {
                 }
             } catch (error) {
                 if (error.response && error.response.status === 401) {
-                    localStorage.removeItem("userInfo");
+                    Logout();
                     setUserId(-1);
                     setLoading(false);
+                    navigate(`/login?redirect=${location.pathname}`);
                 }
             }
         })();
@@ -36,14 +39,29 @@ function TimesheetsScreen() {
 
     const addTimesheet = () =>
         (async () => {
-            const { data } = await axios.post(Endpoints.CREATE_TIMESHEET, {}, authRequestConfig());
-            setTimesheets([...timesheets, data]);
+            try {
+                const { data } = await axios.post(Endpoints.CREATE_TIMESHEET, {}, authRequestConfig());
+
+                setTimesheets([...timesheets, data]);
+            } catch (error) {
+                if (error.response && error.response.status === 401) {
+                    Logout();
+                    navigate(`/login?redirect=${location.pathname}`);
+                }
+            }
         })();
 
     const deleteTimesheet = (timesheetId) =>
         (async () => {
-            const { data } = await axios.delete(Endpoints.DELETE_TIMESHEET(timesheetId), authRequestConfig());
-            setTimesheets(timesheets.filter((timesheet) => timesheet.timesheetId !== timesheetId));
+            try {
+                const { data } = await axios.delete(Endpoints.DELETE_TIMESHEET(timesheetId), authRequestConfig());
+                setTimesheets(timesheets.filter((timesheet) => timesheet.timesheetId !== timesheetId));
+            } catch (error) {
+                if (error.response && error.response.status === 401) {
+                    Logout();
+                    navigate(`/login?redirect=${location.pathname}`);
+                }
+            }
         })();
     return (
         <Container>
