@@ -13,22 +13,33 @@ function TableEditCell({ row, table }) {
             meta?.revertData(row.index, e.currentTarget.name === "cancel");
         }
     };
+
+    const removeRow = () => {
+        meta?.removeRow(row.index);
+    };
+
     return (
         <div className="edit-cell-container">
             {meta?.editedRows[row.id] ? (
-                <div className="edit-cell">
+                <div className="edit-cell-action">
                     <button onClick={setEditedRows} name="cancel">
-                        X
+                        ⚊
                     </button>{" "}
                     <button onClick={setEditedRows} name="done">
                         ✔
                     </button>
                 </div>
             ) : (
-                <button onClick={setEditedRows} name="edit">
-                    ✐
-                </button>
+                <div className="edit-cell-action">
+                    <button onClick={setEditedRows} name="edit">
+                        ✐
+                    </button>
+                    <button onClick={removeRow} name="remove">
+                        X
+                    </button>
+                </div>
             )}
+            <input type="checkbox" checked={row.getIsSelected()} onChange={row.getToggleSelectedHandler()} />
         </div>
     );
 }

@@ -27,13 +27,16 @@ function TimesheetDetailsScreen() {
         setData(data);
         setLoading(false);
     }, [id, userInfo.token]);
+
     useEffect(() => {
         getTimesheetData();
     }, [id, userInfo.token, getTimesheetData]);
+    
     useEffect(() => {
         window.addEventListener("lineItemUpdated", getTimesheetData);
         return () => window.removeEventListener("lineItemUpdated", getTimesheetData);
     }, [getTimesheetData]);
+    
     return (
         <Container className="">
             <h1>{`Timesheet ${id}`}</h1>
@@ -45,7 +48,7 @@ function TimesheetDetailsScreen() {
                         <TimeSheetData timesheetData={data} />
                     </Col>
                     <Col>
-                        <Table tabelData={data.lineItems} />
+                        <Table tabelData={data.lineItems} sheetId={id} />
                     </Col>
                 </Row>
             )}

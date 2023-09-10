@@ -106,3 +106,28 @@ def update_line_item(request, pk):
         return Response(LineItemSerializer(lineItem).data, status=status.HTTP_200_OK)
     except Exception as err:
         return Response(err, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_line_item(request):
+    try:
+        lineItem = LineItem.objects.create(
+            date = request.data['date'],
+            minutes = request.data['minutes'],
+            timesheet = TimeSheet.objects.get(timesheetId=request.data['timesheetId'])
+        )
+        lineItem.save()
+        return Response(LineItemSerializer(lineItem).data, status=status.HTTP_201_CREATED)
+    except Exception as err:
+        return Response(err, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def delete_line_item(request):
+    try:
+        for pk in request.data['lineItemIds']:
+            lineItem = LineItem.objects.get(lineItemId=pk)
+            lineItem.delete()
+        return Response(request.data['lineItemIds'], status=status.HTTP_200_OK)
+    except Exception as err:
+        return Response(err, status=status.HTTP_404_NOT_FOUND)

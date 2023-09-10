@@ -9,4 +9,6 @@ urlpatterns = [
     path("timesheets/<str:pk>/", views.get_timesheet, name="timesheet_data"),
     path("timesheets/update/<str:pk>/", views.update_timesheet, name="update_timesheet"),
     path("lineitems/update/<str:pk>/", views.update_line_item, name="update_line_item"),
+    path("lineitems/create/", views.create_line_item, name="create_line_item"),
+    path("lineitems/delete/", views.delete_line_item, name="delete_line_item"),
 ]

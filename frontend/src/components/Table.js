@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
 import TableCell from "../components/TableCell";
 import TableEditCell from "../components/TableEditCell";
+import TableFooterCell from "../components/TableFooterCell";
 import axios from "axios";
-import { Endpoints } from '../constants'
+import { Endpoints } from "../constants";
 
-function Table({ tabelData }) {
+function Table({ tabelData, sheetId }) {
     const columnHelper = createColumnHelper();
     const columns = [
         columnHelper.accessor("lineItemId", {
@@ -36,12 +37,27 @@ function Table({ tabelData }) {
     const [userInfo, setUserInfo] = useState(
         localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : null
     );
+    const [timesheetId, setTimesheetId] = useState(() => sheetId);
     const [data, setData] = useState(() => tabelData);
     const [originalData, setOriginalData] = useState(() => tabelData);
     const [editedRows, setEditedRows] = useState({});
     useEffect(() => {
         setData(tabelData);
     }, [tabelData]);
+
+    const deletelineItems = async (setFilterFunc, lineItemIds) => {
+        const config = {
+            data: { lineItemIds: [...lineItemIds] },
+            headers: {
+                "Content-type": "application/json",
+                Authorization: `Bearer ${userInfo.token}`,
+            },
+        };
+        const { data } = await axios.delete(Endpoints.DELETE_LINE_ITEM, config);
+        setData(setFilterFunc);
+        setOriginalData(setFilterFunc);
+        window.dispatchEvent(new Event("lineItemUpdated"));
+    };
 
     const saveLineItem = (lineItem) =>
         (async () => {
@@ -51,14 +67,10 @@ function Table({ tabelData }) {
                     Authorization: `Bearer ${userInfo.token}`,
                 },
             };
-            const { data } = await axios.put(
-                `${Endpoints.UPDATE_LINE_ITEM(lineItem.lineItemId)}`,
-                lineItem,
-                config
-            );
+            const { data } = await axios.put(`${Endpoints.UPDATE_LINE_ITEM(lineItem.lineItemId)}`, lineItem, config);
             window.dispatchEvent(new Event("lineItemUpdated"));
         })();
-
+    const date = new Date();
     const table = useReactTable({
         data,
         columns,
@@ -88,6 +100,44 @@ function Table({ tabelData }) {
                     })
                 );
             },
+            addRow: () => {
+                (async () => {
+                    const today = new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000)
+                        .toISOString()
+                        .split("T")[0];
+                    const config = {
+                        headers: {
+                            "Content-type": "application/json",
+                            Authorization: `Bearer ${userInfo.token}`,
+                        },
+                    };
+                    const { data } = await axios.post(
+                        Endpoints.CREATE_LINE_ITEM,
+                        { date: today, minutes: 0, timesheetId: timesheetId },
+                        config
+                    );
+                    const newRow = {
+                        lineItemId: data.lineItemId,
+                        date: today,
+                        minutes: 0,
+                    };
+                    const setFunc = (old) => [...old, newRow];
+                    setData(setFunc);
+                    setOriginalData(setFunc);
+                })();
+            },
+            removeRow: (rowIndex) => {
+                const lineItemId = data[rowIndex]["lineItemId"];
+                const setFilterFunc = (old) => old.filter((_row, index) => index !== rowIndex);
+                deletelineItems(setFilterFunc, [lineItemId]);
+            },
+            removeSelectedRows: (selectedRows) => {
+                const lineItemIds = data
+                    .filter((_, index) => selectedRows.includes(index))
+                    .map((row) => row["lineItemId"]);
+                const setFilterFunc = (old) => old.filter((_row, index) => !selectedRows.includes(index));
+                deletelineItems(setFilterFunc, lineItemIds);
+            },
         },
     });
 
@@ -115,6 +165,13 @@ function Table({ tabelData }) {
                     </tr>
                 ))}
             </tbody>
+            <tfoot>
+                <tr>
+                    <th colSpan={table.getCenterLeafColumns().length} align="right">
+                        <TableFooterCell table={table} />
+                    </th>
+                </tr>
+            </tfoot>
         </table>
     );
 }
