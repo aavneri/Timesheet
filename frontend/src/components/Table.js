@@ -5,6 +5,7 @@ import TableEditCell from "../components/TableEditCell";
 import TableFooterCell from "../components/TableFooterCell";
 import axios from "axios";
 import { Endpoints } from "../constants";
+import { authRequestConfig } from "../services/RequestConfigs";
 
 function Table({ tabelData, sheetId }) {
     const columnHelper = createColumnHelper();
@@ -34,9 +35,6 @@ function Table({ tabelData, sheetId }) {
             cell: TableEditCell,
         }),
     ];
-    const [userInfo, setUserInfo] = useState(
-        localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : null
-    );
     const [timesheetId, setTimesheetId] = useState(() => sheetId);
     const [data, setData] = useState(() => tabelData);
     const [originalData, setOriginalData] = useState(() => tabelData);
@@ -45,14 +43,9 @@ function Table({ tabelData, sheetId }) {
         setData(tabelData);
     }, [tabelData]);
 
-    const deletelineItems = async (setFilterFunc, lineItemIds) => {
-        const config = {
-            data: { lineItemIds: [...lineItemIds] },
-            headers: {
-                "Content-type": "application/json",
-                Authorization: `Bearer ${userInfo.token}`,
-            },
-        };
+    const deleteLineItems = async (setFilterFunc, lineItemIds) => {
+        const config = authRequestConfig();
+        config.data = { lineItemIds: [...lineItemIds] };
         const { data } = await axios.delete(Endpoints.DELETE_LINE_ITEM, config);
         setData(setFilterFunc);
         setOriginalData(setFilterFunc);
@@ -61,13 +54,11 @@ function Table({ tabelData, sheetId }) {
 
     const saveLineItem = (lineItem) =>
         (async () => {
-            const config = {
-                headers: {
-                    "Content-type": "application/json",
-                    Authorization: `Bearer ${userInfo.token}`,
-                },
-            };
-            const { data } = await axios.put(`${Endpoints.UPDATE_LINE_ITEM(lineItem.lineItemId)}`, lineItem, config);
+            const { data } = await axios.put(
+                `${Endpoints.UPDATE_LINE_ITEM(lineItem.lineItemId)}`,
+                lineItem,
+                authRequestConfig()
+            );
             window.dispatchEvent(new Event("lineItemUpdated"));
         })();
     const date = new Date();
@@ -105,16 +96,11 @@ function Table({ tabelData, sheetId }) {
                     const today = new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000)
                         .toISOString()
                         .split("T")[0];
-                    const config = {
-                        headers: {
-                            "Content-type": "application/json",
-                            Authorization: `Bearer ${userInfo.token}`,
-                        },
-                    };
+
                     const { data } = await axios.post(
                         Endpoints.CREATE_LINE_ITEM,
                         { date: today, minutes: 0, timesheetId: timesheetId },
-                        config
+                        authRequestConfig()
                     );
                     const newRow = {
                         lineItemId: data.lineItemId,
@@ -129,14 +115,14 @@ function Table({ tabelData, sheetId }) {
             removeRow: (rowIndex) => {
                 const lineItemId = data[rowIndex]["lineItemId"];
                 const setFilterFunc = (old) => old.filter((_row, index) => index !== rowIndex);
-                deletelineItems(setFilterFunc, [lineItemId]);
+                deleteLineItems(setFilterFunc, [lineItemId]);
             },
             removeSelectedRows: (selectedRows) => {
                 const lineItemIds = data
                     .filter((_, index) => selectedRows.includes(index))
                     .map((row) => row["lineItemId"]);
                 const setFilterFunc = (old) => old.filter((_row, index) => !selectedRows.includes(index));
-                deletelineItems(setFilterFunc, lineItemIds);
+                deleteLineItems(setFilterFunc, lineItemIds);
             },
         },
     });

@@ -4,7 +4,8 @@ import { Form, Button, Row, Col } from "react-bootstrap";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
 import FormContainer from "../components/FormContainer";
-import { Endpoints } from '../constants'
+import { Endpoints } from "../constants";
+import { requestConfig } from "../services/RequestConfigs";
 import axios from "axios";
 
 function RegisterScreen() {
@@ -25,16 +26,10 @@ function RegisterScreen() {
         (async () => {
             setloading(true);
             try {
-                const config = {
-                    headers: {
-                        "Content-type": "application/json",
-                    },
-                };
-
                 const { data } = await axios.post(
                     Endpoints.REGISTER,
                     { name: name, email: email, password: password },
-                    config
+                    requestConfig()
                 );
                 localStorage.setItem("userInfo", JSON.stringify(data));
                 setError("");

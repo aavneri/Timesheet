@@ -4,7 +4,8 @@ import { Form, Button, Row, Col } from "react-bootstrap";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
 import FormContainer from "../components/FormContainer";
-import { Endpoints } from '../constants'
+import { Endpoints } from "../constants";
+import { requestConfig } from "../services/RequestConfigs";
 import axios from "axios";
 
 function LoginScreen() {
@@ -28,13 +29,11 @@ function LoginScreen() {
         (async () => {
             setLoading(true);
             try {
-                const config = {
-                    headers: {
-                        "Content-type": "application/json",
-                    },
-                };
-
-                const { data } = await axios.post(Endpoints.LOGIN, { username: email, password: password }, config);
+                const { data } = await axios.post(
+                    Endpoints.LOGIN,
+                    { username: email, password: password },
+                    requestConfig()
+                );
                 localStorage.setItem("userInfo", JSON.stringify(data));
                 setError("");
                 setUserInfo(data);

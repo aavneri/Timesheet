@@ -2,29 +2,21 @@ import axios from "axios";
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Form, InputGroup } from "react-bootstrap";
 import debounce from "lodash.debounce";
-import { Endpoints } from '../constants'
+import { Endpoints } from "../constants";
+import { authRequestConfig } from "../services/RequestConfigs";
 
 function TimeSheetData({ timesheetData }) {
     const [data, setData] = useState(timesheetData);
-    const [userInfo, setUserInfo] = useState(
-        localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : null
-    );
     const updateTimeSheetData = useCallback(
         (data) =>
             (async () => {
-                const config = {
-                    headers: {
-                        "Content-type": "application/json",
-                        Authorization: `Bearer ${userInfo.token}`,
-                    },
-                };
                 const { response } = await axios.put(
                     `${Endpoints.UPDATE_TIMESHEET(data.timesheetId)}`,
                     { rate: data.rate, description: data.description },
-                    config
+                    authRequestConfig()
                 );
             })(),
-        [userInfo.token]
+        []
     );
     const debouncedUpdateTimeSheetData = useMemo(() => debounce(updateTimeSheetData, 300), [updateTimeSheetData]);
     useEffect(() => {

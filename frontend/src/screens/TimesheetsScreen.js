@@ -5,6 +5,7 @@ import { LinkContainer } from "react-router-bootstrap";
 import axios from "axios";
 import Loader from "../components/Loader";
 import { Endpoints } from "../constants";
+import { authRequestConfig } from "../services/RequestConfigs";
 
 function TimesheetsScreen() {
     const [timesheets, setTimesheets] = useState(() => []);
@@ -14,50 +15,39 @@ function TimesheetsScreen() {
         localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : null
     );
     const [userId, setUserId] = useState(userInfo ? userInfo.id : -1);
-    useEffect(
-        () => async () => {
-            if (userId > 0) {
-                setLoading(true);
-                const config = {
-                    headers: {
-                        "Content-type": "application/json",
-                        Authorization: `Bearer ${userInfo.token}`,
-                    },
-                };
-                const { data } = await axios.get(Endpoints.GET_USER_TIMESHEET(userId), config);
-                setLoading(false);
-                setTimesheets(data);
+    useEffect(() => {
+        (async () => {
+            try {
+                if (userId > 0) {
+                    setLoading(true);
+                    const { data } = await axios.get(Endpoints.GET_USER_TIMESHEET(userId), authRequestConfig());
+                    setLoading(false);
+                    setTimesheets(data);
+                }
+            } catch (error) {
+                if (error.response && error.response.status === 401) {
+                    localStorage.removeItem("userInfo");
+                    setUserId(-1);
+                    setLoading(false);
+                }
             }
-        },
-        [userId, userInfo.token]
-    );
+        })();
+    }, [userId]);
 
     const addTimesheet = () =>
         (async () => {
-            const config = {
-                headers: {
-                    "Content-type": "application/json",
-                    Authorization: `Bearer ${userInfo.token}`,
-                },
-            };
-            const { data } = await axios.post(Endpoints.CREATE_TIMESHEET, {}, config);
+            const { data } = await axios.post(Endpoints.CREATE_TIMESHEET, {}, authRequestConfig());
             setTimesheets([...timesheets, data]);
         })();
 
     const deleteTimesheet = (timesheetId) =>
         (async () => {
-            const config = {
-                headers: {
-                    "Content-type": "application/json",
-                    Authorization: `Bearer ${userInfo.token}`,
-                },
-            };
-            const { data } = await axios.delete(Endpoints.DELETE_TIMESHEET(timesheetId), config);
+            const { data } = await axios.delete(Endpoints.DELETE_TIMESHEET(timesheetId), authRequestConfig());
             setTimesheets(timesheets.filter((timesheet) => timesheet.timesheetId !== timesheetId));
         })();
     return (
         <Container>
-            {!userInfo ? (
+            {userId < 0 ? (
                 <div>
                     Please <Link to={"/login?redirect=/timesheets"}>Log in</Link> to see your timesheets
                 </div>

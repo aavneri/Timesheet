@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Button, Row, Col, Form } from "react-bootstrap";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
-import { Endpoints } from '../constants'
+import { Endpoints } from "../constants";
+import { authRequestConfig } from "../services/RequestConfigs";
 import axios from "axios";
 
 function ProfileScreen() {
@@ -24,13 +25,7 @@ function ProfileScreen() {
         (async () => {
             try {
                 setLoading(true);
-                const config = {
-                    headers: {
-                        "Content-type": "application/json",
-                        Authorization: `Bearer ${userInfo.token}`,
-                    },
-                };
-                const { data } = await axios.put(Endpoints.UPDATE_PROFILE, user, config);
+                const { data } = await axios.put(Endpoints.UPDATE_PROFILE, user, authRequestConfig());
                 localStorage.setItem("userInfo", JSON.stringify(data));
                 setError("");
                 setUserInfo(data);

@@ -5,6 +5,7 @@ import Loader from "../components/Loader";
 import { Container, Row, Col } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import { Endpoints } from "../constants";
+import { authRequestConfig } from "../services/RequestConfigs";
 import axios from "axios";
 
 function TimesheetDetailsScreen() {
@@ -12,31 +13,25 @@ function TimesheetDetailsScreen() {
     const [data, setData] = useState(() => {
         return { description: "" };
     });
-    const [userInfo, setUserInfo] = useState(
-        localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : null
-    );
+    // const [userInfo, setUserInfo] = useState(
+    //     localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : null
+    // );
     const [loading, setLoading] = useState(() => true);
     const getTimesheetData = useCallback(async () => {
-        const config = {
-            headers: {
-                "Content-type": "application/json",
-                Authorization: `Bearer ${userInfo.token}`,
-            },
-        };
-        const { data } = await axios.get(`${Endpoints.GET_TIMESHEET_DETAIL(id)}`, config);
+        const { data } = await axios.get(`${Endpoints.GET_TIMESHEET_DETAIL(id)}`, authRequestConfig());
         setData(data);
         setLoading(false);
-    }, [id, userInfo.token]);
+    }, [id]);
 
     useEffect(() => {
         getTimesheetData();
-    }, [id, userInfo.token, getTimesheetData]);
-    
+    }, [id, getTimesheetData]);
+
     useEffect(() => {
         window.addEventListener("lineItemUpdated", getTimesheetData);
         return () => window.removeEventListener("lineItemUpdated", getTimesheetData);
     }, [getTimesheetData]);
-    
+
     return (
         <Container className="">
             <h1>{`Timesheet ${id}`}</h1>
