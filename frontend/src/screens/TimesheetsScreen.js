@@ -35,53 +35,78 @@ function TimesheetsScreen() {
     return (
         <Container>
             {!userInfo ? (
-                <Row className="py-3">
-                    <Col>
-                        Please <Link to={"/login?redirect=/timesheets"}>Log in</Link> to see your timesheets
-                    </Col>
-                </Row>
+                <div>
+                    Please <Link to={"/login?redirect=/timesheets"}>Log in</Link> to see your timesheets
+                </div>
             ) : (
-                <Row>
-                    <Col md={9}>
-                        <h1>My Timesheets</h1>
-                        {loading ? (
-                            <Loader />
-                        ) : timesheets.length === 0 ? (
-                            <Message variant="info">You dont have any timesheets yet</Message>
-                        ) : (
-                            <Table striped responsive className="table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Create At</th>
-                                        <th>Rate</th>
-                                        <th>Total Time (min)</th>
-                                        <th>Total Cost</th>
-                                        <th>Description</th>
-                                        <th style={{ width: "0.75rem" }}></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {timesheets.map((item) => (
-                                        <tr key={item.timesheetId}>
-                                            <td>{item.timesheetId}</td>
-                                            <td>{item.dateCreated}</td>
-                                            <td>${item.rate}</td>
-                                            <td>{item.totalTime}</td>
-                                            <td>${item.totalTime * item.rate}</td>
-                                            <td>{item.description}</td>
-                                            <td>
+                <div>
+                    <h1>My Timesheets</h1>
+                    {loading ? (
+                        <Loader />
+                    ) : timesheets.length === 0 ? (
+                        <Message variant="info">You dont have any timesheets yet</Message>
+                    ) : (
+                        <Table striped responsive className="table-sm timesheets">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Create At</th>
+                                    <th>Rate</th>
+                                    <th>Total Time (min)</th>
+                                    <th>Total Cost</th>
+                                    <th>Description</th>
+                                    <th style={{ width: "0.75rem" }}></th>
+                                    <th style={{ width: "0.75rem" }}></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {timesheets.map((item) => (
+                                    <tr key={item.timesheetId}>
+                                        <td>
+                                            <div>{item.timesheetId}</div>
+                                        </td>
+                                        <td>
+                                            <div>{item.dateCreated}</div>
+                                        </td>
+                                        <td>
+                                            <div>${item.rate}</div>
+                                        </td>
+                                        <td>
+                                            <div>{item.totalTime}</div>
+                                        </td>
+                                        <td>
+                                            <div>${item.totalTime * item.rate}</div>
+                                        </td>
+                                        <td>
+                                            <div>{item.description}</div>
+                                        </td>
+                                        <td>
+                                            <div>
                                                 <LinkContainer to={`/timesheets/${item.timesheetId}`}>
                                                     <Button className="btn-sm">Details</Button>
                                                 </LinkContainer>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </Table>
-                        )}
-                    </Col>
-                </Row>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <Button className="btn-sm">
+                                                    <i className="fas fa-trash"></i> Delete
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colSpan={8} align="right">
+                                        <Button className="btn-sm">Add New <i className="fas fa-plus"/></Button>
+                                    </th>
+                                </tr>
+                            </tfoot>
+                        </Table>
+                    )}
+                </div>
             )}
         </Container>
     );

@@ -102,3 +102,21 @@ table.timesheet {
 thead tr {
     border-bottom: 1px solid;
 }
+
+table.timesheets {
+    width: 1200px;
+    tr td:nth-child(6) > div {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        width: 250px;
+    }
+    tr td:nth-child(8) > div {
+        width: 81px;
+        text-align: end;
+    }
+
+    tfoot {
+      text-align: end;
+    }
+}
