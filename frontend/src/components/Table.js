@@ -32,6 +32,8 @@ function Table({ tabelData, sheetId }) {
             cell: TableCell,
             meta: {
                 type: "number",
+                min: "0",
+                max: "1440",
             },
         }),
         columnHelper.display({
@@ -84,6 +86,7 @@ function Table({ tabelData, sheetId }) {
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        enableRowSelection: true,
         meta: {
             editedRows,
             setEditedRows,
@@ -92,6 +95,7 @@ function Table({ tabelData, sheetId }) {
                     setData((old) => old.map((row, index) => (index === rowIndex ? originalData[rowIndex] : row)));
                 } else {
                     setOriginalData((old) => old.map((row, index) => (index === rowIndex ? data[rowIndex] : row)));
+                    saveLineItem(data[rowIndex]);
                 }
             },
             updateData: (rowIndex, columnId, value) => {
@@ -102,7 +106,6 @@ function Table({ tabelData, sheetId }) {
                                 ...old[rowIndex],
                                 [columnId]: value,
                             };
-                            saveLineItem(newLineItem);
                             return newLineItem;
                         }
                         return row;

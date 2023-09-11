@@ -184,18 +184,18 @@ CORS_ALLOW_ALL_ORIGINS = True
 if os.getcwd() == "/app":
     DEBUG = False
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["console"],
-            "level": os.getenv("DJANGO_LOG_LEVEL", "DEBUG"),
-        },
-    },
-}
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "handlers": {
+#         "console": {
+#             "class": "logging.StreamHandler",
+#         },
+#     },
+#     "loggers": {
+#         "django": {
+#             "handlers": ["console"],
+#             "level": os.getenv("DJANGO_LOG_LEVEL", "DEBUG"),
+#         },
+#     },
+# }
