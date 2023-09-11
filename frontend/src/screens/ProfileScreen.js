@@ -5,8 +5,9 @@ import Loader from "../components/Loader";
 import Message from "../components/Message";
 import { Endpoints } from "../constants";
 import { authRequestConfig } from "../services/RequestConfigs";
-import Logout from '../common/Logout'
+import Logout from "../common/Logout";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 function ProfileScreen() {
     const navigate = useNavigate();
@@ -22,24 +23,28 @@ function ProfileScreen() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
-
     const updateUserProfile = (user) =>
         (async () => {
             try {
-                setLoading(true);
+                Swal.fire({
+                    title: "Updating...",
+                    html: "Please wait a moment",
+                });
+                Swal.showLoading();
                 const { data } = await axios.put(Endpoints.UPDATE_PROFILE, user, authRequestConfig());
                 localStorage.setItem("userInfo", JSON.stringify(data));
                 setError("");
                 setUserInfo(data);
                 window.dispatchEvent(new Event("login"));
+                Swal.close();
             } catch (error) {
                 if (error.response && error.response.status === 401) {
-                    Logout();
-                    navigate(`/login?redirect=${location.pathname}`);
+                    Logout().then(() => navigate(`/login?redirect=${location.pathname}`));
+                } else {
+                    Swal.close();
+                    setError(error.response && error.response.data.detail ? error.response.data.detail : error.detail);
                 }
-                setError(error.response && error.response.data.detail ? error.response.data.detail : error.detail);
             }
-            setLoading(false);
         })();
 
     useEffect(() => {

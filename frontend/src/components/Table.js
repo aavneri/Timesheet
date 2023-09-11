@@ -8,6 +8,7 @@ import axios from "axios";
 import { Endpoints } from "../constants";
 import { authRequestConfig } from "../services/RequestConfigs";
 import Logout from "../common/Logout";
+import Swal from "sweetalert2";
 
 function Table({ tabelData, sheetId }) {
     const location = useLocation();
@@ -51,16 +52,25 @@ function Table({ tabelData, sheetId }) {
 
     const deleteLineItems = async (setFilterFunc, lineItemIds) => {
         try {
+            Swal.fire({
+                title: "Deleting...",
+                html: "Please wait a moment",
+            });
+            Swal.showLoading();
             const config = authRequestConfig();
             config.data = { lineItemIds: [...lineItemIds] };
             const { data } = await axios.delete(Endpoints.DELETE_LINE_ITEM, config);
             setData(setFilterFunc);
             setOriginalData(setFilterFunc);
             window.dispatchEvent(new Event("lineItemUpdated"));
+            Swal.close();
         } catch (error) {
             if (error.response && error.response.status === 401) {
-                Logout();
-                navigate(`/login?redirect=${location.pathname}`);
+                Logout().then(() => {
+                    navigate(`/login?redirect=${location.pathname}`);
+                });
+            } else {
+                Swal.close();
             }
         }
     };
@@ -68,16 +78,25 @@ function Table({ tabelData, sheetId }) {
     const saveLineItem = (lineItem) =>
         (async () => {
             try {
+                Swal.fire({
+                    title: "Saving...",
+                    html: "Please wait a moment",
+                });
+                Swal.showLoading();
                 const { data } = await axios.put(
                     `${Endpoints.UPDATE_LINE_ITEM(lineItem.lineItemId)}`,
                     lineItem,
                     authRequestConfig()
                 );
                 window.dispatchEvent(new Event("lineItemUpdated"));
+                Swal.close();
             } catch (error) {
                 if (error.response && error.response.status === 401) {
-                    Logout();
-                    navigate(`/login?redirect=${location.pathname}`);
+                    Logout().then(() => {
+                        navigate(`/login?redirect=${location.pathname}`);
+                    });
+                } else {
+                    Swal.close();
                 }
             }
         })();
@@ -115,6 +134,11 @@ function Table({ tabelData, sheetId }) {
             addRow: () => {
                 (async () => {
                     try {
+                        Swal.fire({
+                            title: "Adding...",
+                            html: "Please wait a moment",
+                        });
+                        Swal.showLoading();
                         const today = new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000)
                             .toISOString()
                             .split("T")[0];
@@ -132,10 +156,14 @@ function Table({ tabelData, sheetId }) {
                         const setFunc = (old) => [...old, newRow];
                         setData(setFunc);
                         setOriginalData(setFunc);
+                        Swal.close();
                     } catch (error) {
                         if (error.response && error.response.status === 401) {
-                            Logout();
-                            navigate(`/login?redirect=${location.pathname}`);
+                            Logout().then(() => {
+                                navigate(`/login?redirect=${location.pathname}`);
+                            });
+                        } else {
+                            Swal.close();
                         }
                     }
                 })();

@@ -6,6 +6,19 @@ import debounce from "lodash.debounce";
 import { Endpoints } from "../constants";
 import Logout from '../common/Logout'
 import { authRequestConfig } from "../services/RequestConfigs";
+import Swal from "sweetalert2";
+
+const Toast = Swal.mixin({
+    toast: true,
+    position: "top-start",
+    showConfirmButton: false,
+    timer: 1500,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        toast.addEventListener("mouseenter", Swal.stopTimer);
+        toast.addEventListener("mouseleave", Swal.resumeTimer);
+    },
+});
 
 function TimeSheetData({ timesheetData }) {
     const location = useLocation()
@@ -20,10 +33,15 @@ function TimeSheetData({ timesheetData }) {
                         { rate: data.rate, description: data.description },
                         authRequestConfig()
                     );
+                    Toast.fire({
+                        icon: "success",
+                        title: "Timesheet Updated",
+                    });
                 } catch (error) {
                     if (error.response && error.response.status === 401) {
-                        Logout();
-                        navigate(`/login?redirect=${location.pathname}`);
+                        Logout().then(() => {
+                            navigate(`/login?redirect=${location.pathname}`);
+                        });
                     }
                 }
             })(),

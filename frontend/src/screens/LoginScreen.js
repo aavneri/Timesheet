@@ -7,6 +7,7 @@ import FormContainer from "../components/FormContainer";
 import { Endpoints } from "../constants";
 import { requestConfig } from "../services/RequestConfigs";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 function LoginScreen() {
     const [email, setEmail] = useState("");
@@ -17,7 +18,7 @@ function LoginScreen() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const redirect = window.location.search ? window.location.search.split("=")[1] : "/";
+    const redirect = window.location.hash.includes("?redirect=") ? window.location.hash.split("?redirect=")[1] : "/";
 
     useEffect(() => {
         if (userInfo) {
@@ -27,8 +28,12 @@ function LoginScreen() {
 
     const login = (email, password) =>
         (async () => {
-            setLoading(true);
             try {
+                Swal.fire({
+                    title: "Logging In...",
+                    html: "Please wait a moment",
+                });
+                Swal.showLoading();
                 const { data } = await axios.post(
                     Endpoints.LOGIN,
                     { username: email, password: password },
@@ -38,10 +43,11 @@ function LoginScreen() {
                 setError("");
                 setUserInfo(data);
                 window.dispatchEvent(new Event("login"));
+                Swal.close();
             } catch (error) {
                 setError(error.response && error.response.data.detail ? error.response.data.detail : error.detail);
+                Swal.close();
             }
-            setLoading(false);
         })();
 
     const submitHandler = (e) => {

@@ -2,15 +2,16 @@ import React, { useState, useEffect } from "react";
 import { Nav, Navbar, Container, NavDropdown } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { useNavigate } from "react-router-dom";
+import logout from "../common/Logout";
 function Header() {
     const navigate = useNavigate();
     const [userInfo, setUserInfo] = useState(
         localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : null
     );
     const logoutHandler = () => {
-        localStorage.removeItem("userInfo");
-        setUserInfo(null);
-        navigate("/");
+        logout().then(() => {
+            navigate("/");
+        });
     };
 
     useEffect(() => {

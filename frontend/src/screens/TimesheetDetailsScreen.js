@@ -5,7 +5,7 @@ import Loader from "../components/Loader";
 import { Container, Row, Col } from "react-bootstrap";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Endpoints } from "../constants";
-import Logout from '../common/Logout'
+import Logout from "../common/Logout";
 import { authRequestConfig } from "../services/RequestConfigs";
 import axios from "axios";
 
@@ -25,8 +25,7 @@ function TimesheetDetailsScreen() {
             setLoading(false);
         } catch (error) {
             if (error.response && error.response.status === 401) {
-                Logout();
-                navigate(`/login?redirect=${location.pathname}`);
+                Logout().then(() => navigate(`/login?redirect=${location.pathname}`));
             }
         }
     }, [id]);

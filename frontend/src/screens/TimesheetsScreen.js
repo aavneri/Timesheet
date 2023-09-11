@@ -7,6 +7,7 @@ import Loader from "../components/Loader";
 import { Endpoints } from "../constants";
 import { authRequestConfig } from "../services/RequestConfigs";
 import Logout from "../common/Logout";
+import Swal from "sweetalert2";
 
 function TimesheetsScreen() {
     const location = useLocation();
@@ -28,10 +29,11 @@ function TimesheetsScreen() {
                 }
             } catch (error) {
                 if (error.response && error.response.status === 401) {
-                    Logout();
-                    setUserId(-1);
                     setLoading(false);
-                    navigate(`/login?redirect=${location.pathname}`);
+                    setUserId(-1);
+                    Logout().then(() => {
+                        navigate(`/login?redirect=${location.pathname}`);
+                    });
                 }
             }
         })();
@@ -40,13 +42,22 @@ function TimesheetsScreen() {
     const addTimesheet = () =>
         (async () => {
             try {
+                Swal.fire({
+                    title: "Adding...",
+                    html: "Please wait a moment",
+                });
+                Swal.showLoading();
                 const { data } = await axios.post(Endpoints.CREATE_TIMESHEET, {}, authRequestConfig());
 
                 setTimesheets([...timesheets, data]);
+                Swal.close();
             } catch (error) {
                 if (error.response && error.response.status === 401) {
-                    Logout();
-                    navigate(`/login?redirect=${location.pathname}`);
+                    Logout().then(() => {
+                        navigate(`/login?redirect=${location.pathname}`);
+                    });
+                } else {
+                    Swal.close();
                 }
             }
         })();
@@ -54,19 +65,29 @@ function TimesheetsScreen() {
     const deleteTimesheet = (timesheetId) =>
         (async () => {
             try {
+                Swal.fire({
+                    title: "Deleting...",
+                    html: "Please wait a moment",
+                });
+                Swal.showLoading();
                 const { data } = await axios.delete(Endpoints.DELETE_TIMESHEET(timesheetId), authRequestConfig());
                 setTimesheets(timesheets.filter((timesheet) => timesheet.timesheetId !== timesheetId));
+                Swal.close();
             } catch (error) {
                 if (error.response && error.response.status === 401) {
-                    Logout();
-                    navigate(`/login?redirect=${location.pathname}`);
+                    Logout().then(() => {
+                        navigate(`/login?redirect=${location.pathname}`);
+                    });
+                }
+                else{
+                    Swal.close();
                 }
             }
         })();
     return (
         <Container>
             {userId < 0 ? (
-                <div>
+                <div className="text-center">
                     Please <Link to={"/login?redirect=/timesheets"}>Log in</Link> to see your timesheets
                 </div>
             ) : (
